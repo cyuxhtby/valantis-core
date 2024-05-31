@@ -23,12 +23,15 @@ import {
     PoolState,
     SwapParams
 } from './structs/UniversalPoolStructs.sol';
-import { ALMReserves } from '../ALM/structs/UniversalALMStructs.sol';
-import { EnumerableALMMap } from '../libraries/EnumerableALMMap.sol';
-import { StateLib } from './libraries/StateLib.sol';
-import { GM } from './libraries/GM.sol';
-import { ALMLib } from './libraries/ALMLib.sol';
+import { ALMReserves } from '../ALM/structs/UniversalALMStructs.sol'; // struct for representing reserve amounts for an ALM
+import { EnumerableALMMap } from '../libraries/EnumerableALMMap.sol'; // custom data structure to manage and store ALM positions
+import { StateLib } from './libraries/StateLib.sol'; // helper functions for managing pool state
+import { GM } from './libraries/GM.sol'; // liquidity aggregation algorithm functions
+import { ALMLib } from './libraries/ALMLib.sol'; // helper functions for managing AML liquidity
 import { PriceTickMath } from '../libraries/PriceTickMath.sol';
+
+// NOTE: This seems to be an alternative to the SovereignPool central component
+// NOTE: It aggregates liquidity from multiple ALMs and optimizes swaps to provide the best price for users
 
 /**
   @title Valantis Universal Pool
