@@ -7,15 +7,18 @@ import { SafeERC20 } from '../../lib/openzeppelin-contracts/contracts/token/ERC2
 
 import { Constants } from '../utils/Constants.sol';
 import { ReentrancyGuard } from '../utils/ReentrancyGuard.sol';
-import { ISwapFeeModule, SwapFeeModuleData } from '../swap-fee-modules/interfaces/ISwapFeeModule.sol';
-import { ISovereignPool } from './interfaces/ISovereignPool.sol';
-import { ISovereignPoolSwapCallback } from './interfaces/ISovereignPoolSwapCallback.sol';
-import { IVerifierModule } from './interfaces/IVerifierModule.sol';
-import { ALMLiquidityQuoteInput, ALMLiquidityQuote } from '../ALM/structs/SovereignALMStructs.sol';
-import { ISovereignVaultMinimal } from './interfaces/ISovereignVaultMinimal.sol';
-import { ISovereignALM } from '../ALM/interfaces/ISovereignALM.sol';
-import { ISovereignOracle } from '../oracles/interfaces/ISovereignOracle.sol';
-import { SovereignPoolConstructorArgs, SwapCache, SovereignPoolSwapParams } from './structs/SovereignPoolStructs.sol';
+
+// manditory to use
+import { ISovereignPool } from './interfaces/ISovereignPool.sol'; // core interface of the Sovereign Pool
+import { SovereignPoolConstructorArgs, SwapCache, SovereignPoolSwapParams } from './structs/SovereignPoolStructs.sol'; // structs for pool construction and swap operations
+import { ISovereignALM } from '../ALM/interfaces/ISovereignALM.sol'; // interface for the Algorithmic Liquidity Module
+import { ALMLiquidityQuoteInput, ALMLiquidityQuote } from '../ALM/structs/SovereignALMStructs.sol'; // structs for liquidity quotes
+// optional to use
+import { ISwapFeeModule, SwapFeeModuleData } from '../swap-fee-modules/interfaces/ISwapFeeModule.sol'; 
+import { ISovereignPoolSwapCallback } from './interfaces/ISovereignPoolSwapCallback.sol'; // swap callbacks are optional
+import { IVerifierModule } from './interfaces/IVerifierModule.sol'; 
+import { ISovereignVaultMinimal } from './interfaces/ISovereignVaultMinimal.sol'; 
+import { ISovereignOracle } from '../oracles/interfaces/ISovereignOracle.sol'; 
 import { IFlashBorrower } from './interfaces/IFlashBorrower.sol';
 
 /**
