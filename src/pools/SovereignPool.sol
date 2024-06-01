@@ -34,6 +34,9 @@ import { IFlashBorrower } from './interfaces/IFlashBorrower.sol';
             If not specified, the pool itself will hold the LPs' reserves.
  */
 contract SovereignPool is ISovereignPool, ReentrancyGuard {
+    // NOTE: ISovereignPool defines main pool functions: depositing/withdrawing liquidity, swap, module and fee management, etc.
+    // NOTE: ISovereignPool inherits IValantisPool, isolating functionalities like flash loans and protocol fee claims
+      
     using SafeERC20 for IERC20;
 
     /************************************************
