@@ -27,8 +27,13 @@ import { PriceTickMath } from '../../libraries/PriceTickMath.sol';
 /**
     @notice Library of helper functions.
         Allows the Universal Pool to apply the GM algorithm on the set of ALMs.
+
+        NOTE: The GM library acts as an intermediary between the Universal Pool and the individual ALMs
+        NOTE: It abstracts away the complexities of coordinating liquidity across multiple ALMs and provides an interface for the pool to interact with them
 */
 library GM {
+    // NOTE: Not sure what GM stands for here, good morning?
+
     using EnumerableALMMap for EnumerableALMMap.ALMSet;
     using StateLib for EnumerableALMMap.ALMSet;
 
