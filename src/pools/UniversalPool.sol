@@ -25,13 +25,10 @@ import {
 } from './structs/UniversalPoolStructs.sol';
 import { ALMReserves } from '../ALM/structs/UniversalALMStructs.sol'; // struct for representing reserve amounts for an ALM
 import { EnumerableALMMap } from '../libraries/EnumerableALMMap.sol'; // custom data structure to manage and store ALM positions
-import { StateLib } from './libraries/StateLib.sol'; // helper functions for managing pool state
-import { GM } from './libraries/GM.sol'; // liquidity aggregation algorithm functions
-import { ALMLib } from './libraries/ALMLib.sol'; // helper functions for managing AML liquidity
+import { StateLib } from './libraries/StateLib.sol'; // helper functions for claiming fees and setting pool state, offloaded to save bytecode and only used by this contract
+import { GM } from './libraries/GM.sol'; // helper functions to algorithmically aggregate liquidity from multiple ALMs
+import { ALMLib } from './libraries/ALMLib.sol'; // helper functions for depositing/withdrawing liquidity from an individual AML
 import { PriceTickMath } from '../libraries/PriceTickMath.sol';
-
-// NOTE: This seems to be an alternative to the SovereignPool central component
-// NOTE: It aggregates liquidity from multiple ALMs and optimizes swaps to provide the best price for users
 
 /**
   @title Valantis Universal Pool
@@ -55,6 +52,19 @@ import { PriceTickMath } from '../libraries/PriceTickMath.sol';
        and pricing tokenOut in terms of tokenIn, are done by Swap Fee Module, ALMs and Universal Pool, respectively.
        In this way, one can safely make changes in one aspect of the pool without altering the others.
  */
+
+// NOTE: The UniversalPool is able to support multiple invariants or ALM designs
+// NOTE: The EnumerableALMMap is responsible for holding the set of all active ALMs
+// NOTE: The UniversalPool is able to sort through the ALM price quotes and execute the best price
+// NOTE: The GM library is responsible for sorting through various ALM price quotes and finding the best price
+// NOTE: The ALMLib library is responsible for managing the liquidity for a respective ALM once selected
+
+// NOTE: Motivation for choosing the UniversalPool over the SovereignPool:
+//       The flexibility to support multiple specific ALM use cases while offering the best price to the user
+// NOTE: Drawbacks of the UniversalPool design: 
+//       Does not support SovereignVaults and therefore still results in liquidity fragmentation
+
+
 contract UniversalPool is IUniversalPool, UniversalPoolReentrancyGuard {
     using SafeERC20 for IERC20;
     using EnumerableALMMap for EnumerableALMMap.ALMSet;
@@ -583,7 +593,9 @@ contract UniversalPool is IUniversalPool, UniversalPoolReentrancyGuard {
         } else {
             swapCache.effectiveFee = _swapParams.amountIn - swapCache.amountInMinusFee;
         }
-
+        
+        // NOTE: updatePoolState updates the pool's state variables, such as reserves and fees,
+        //       based on the outcome of the swap. It also calculates the effective swap fee
         almStates.updatePoolState(_ALMPositions, _state, _swapParams, swapCache);
 
         amountInUsed = (swapCache.amountInMinusFee - swapCache.amountInRemaining) + swapCache.effectiveFee;
