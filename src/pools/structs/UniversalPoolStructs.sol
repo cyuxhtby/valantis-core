@@ -5,22 +5,24 @@ import { ALMCachedLiquidityQuote, ALMReserves } from '../../ALM/structs/Universa
 import { IUniversalOracle } from '../../oracles/interfaces/IUniversalOracle.sol';
 import { SwapFeeModuleData } from '../../swap-fee-modules/interfaces/ISwapFeeModule.sol';
 
+// compactly stores AML metadata into a single 32-byte slot
 struct Slot0 {
-    bool isMetaALM;
+    bool isMetaALM; // A MetaALM is an ALM that interacts with and aggregates liquidity from other ALMs
     bool isCallbackOnSwapEndRequired;
-    bool shareQuotes;
-    uint64 metaALMFeeShare;
+    bool shareQuotes; // will base ALMs share quote information with meta ALMs in exchange for a share of the fees
+    uint64 metaALMFeeShare; // percentage of fees that a meta ALM shares with base ALMs, if applicable
     address almAddress;
 }
 
 struct ALMPosition {
-    Slot0 slot0;
+    Slot0 slot0; // AML metadata of respective position
     uint256 reserve0;
     uint256 reserve1;
     uint256 feeCumulative0;
     uint256 feeCumulative1;
 }
 
+// A tokenOutAmount quote from an underlying ALM to a MetaALM
 struct UnderlyingALMQuote {
     bool isValidQuote;
     address almAddress;
@@ -29,7 +31,7 @@ struct UnderlyingALMQuote {
 
 struct MetaALMData {
     UnderlyingALMQuote[] almQuotes;
-    bytes almContext;
+    bytes almContext; // possible extra parameters or settings specific to the metaALM's liquidity aggregation
 }
 
 struct SwapParams {
@@ -42,8 +44,8 @@ struct SwapParams {
     uint256 deadline;
     bytes swapCallbackContext;
     bytes swapFeeModuleContext;
-    uint8[] almOrdering;
-    bytes[] externalContext;
+    uint8[] almOrdering;  // ordering during setupSwap, specified by the pool manager
+    bytes[] externalContext; // possibly off-chain data or additional params ? 
 }
 
 /************************************************
@@ -58,12 +60,13 @@ struct SwapCache {
     uint256 amountInMinusFee;
     uint256 amountInRemaining;
     uint256 amountOutFilled;
-    uint256 effectiveFee;
-    uint256 numBaseALMs;
-    uint256 baseShareQuoteLiquidity;
+    uint256 effectiveFee; // actual swap fee charged
+    uint256 numBaseALMs; // number of ALMs that are not meta ALMs
+    uint256 baseShareQuoteLiquidity; // total liquidity provided by base ALMs sharing quotes
     uint256 feeInBips;
 }
 
+// internal state for an ALM during a swap
 struct InternalSwapALMState {
     bool isParticipatingInSwap;
     bool refreshReserves;
