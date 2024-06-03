@@ -45,7 +45,7 @@ struct SwapParams {
     bytes swapCallbackContext;
     bytes swapFeeModuleContext;
     uint8[] almOrdering;  // ordering during setupSwap, specified by the pool manager
-    bytes[] externalContext; // possibly off-chain data or additional params ? 
+    bytes[] externalContext; // external data, Signed Quotes, Oracle Data, Onchain credentials, etc.
 }
 
 /************************************************
