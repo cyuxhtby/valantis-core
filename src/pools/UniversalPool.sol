@@ -10,7 +10,7 @@ import { PoolLocks, Lock } from './structs/ReentrancyGuardStructs.sol';
 import { IUniversalPool } from './interfaces/IUniversalPool.sol';
 import { IUniversalPoolSwapCallback } from './interfaces/IUniversalPoolSwapCallback.sol';
 import { ISwapFeeModule, SwapFeeModuleData } from '../swap-fee-modules/interfaces/ISwapFeeModule.sol';
-import { IUniversalOracle } from '../oracles/interfaces/IUniversalOracle.sol';
+import { IUniversalOracle } from '../oracles/interfaces/IUniversalOracle.sol'; // writes swap updates to an oracle specific to this pool
 import { IFlashBorrower } from '../pools/interfaces/IFlashBorrower.sol';
 
 import {
@@ -53,16 +53,20 @@ import { PriceTickMath } from '../libraries/PriceTickMath.sol';
        In this way, one can safely make changes in one aspect of the pool without altering the others.
  */
 
-// NOTE: The UniversalPool is able to support multiple invariants or ALM designs
-// NOTE: The EnumerableALMMap is responsible for holding the set of all active ALMs
-// NOTE: The UniversalPool is able to sort through the ALM price quotes and execute the best price
+// NOTE: The UniversalPool is able to support multiple invariants or ALM designs and algorithmically offers the best price
+
+// NOTE: The EnumerableALMMap is responsible for holding the set of all base and Meta ALMs
+// NOTE: Base ALMs: handle liquidity for specific trading pairs
+//       Meta ALMs: aggregate liquidity from base ALMs. Meta ALMs can share fees with base ALMs in exchange for real-time quotes
+
 // NOTE: The GM library is responsible for sorting through various ALM price quotes and finding the best price
-// NOTE: The ALMLib library is responsible for managing the liquidity for a respective ALM once selected
+
+// NOTE: The ALMLib library manages the addition/removal of liquidity for a respective ALM
 
 // NOTE: Motivation for choosing the UniversalPool over the SovereignPool:
-//       The flexibility to support multiple specific ALM use cases while offering the best price to the user
+//       The flexibility to support multiple specific ALM designs while still offering the best price to the user
 // NOTE: Drawbacks of the UniversalPool design: 
-//       Does not support SovereignVaults and therefore still results in liquidity fragmentation
+//       Does not support SovereignVaults, leading to potential liquidity fragmentation
 
 
 contract UniversalPool is IUniversalPool, UniversalPoolReentrancyGuard {
@@ -169,6 +173,12 @@ contract UniversalPool is IUniversalPool, UniversalPoolReentrancyGuard {
     /************************************************
      *  MODIFIERS
      ***********************************************/
+
+    // NOTE: Pool manager responsibilities:
+    //       - adding, removing, and replacing ALM positions in the pool
+    //       - setting and updating the swap fee module
+    //       - initializing the pool's spot price tick
+    //       - claiming and distributing accrued fees
 
     modifier onlyPoolManager() {
         _onlyPoolManager();
