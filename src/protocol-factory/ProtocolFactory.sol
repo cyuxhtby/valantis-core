@@ -5,9 +5,9 @@ import { EnumerableSet } from '../../lib/openzeppelin-contracts/contracts/utils/
 import { Address } from '../../lib/openzeppelin-contracts/contracts/utils/Address.sol';
 
 import { IProtocolFactory } from './interfaces/IProtocolFactory.sol';
-import { IValantisDeployer } from './interfaces/IValantisDeployer.sol';
-import { IPoolGaugeDeployer } from './interfaces/IPoolGaugeDeployer.sol';
-import { IPoolDeployer } from './interfaces/IPoolDeployer.sol';
+import { IValantisDeployer } from './interfaces/IValantisDeployer.sol'; // interface for factory contracts whitelisted in ProtocolFactory, extends IPoolDeployer 
+import { IPoolGaugeDeployer } from './interfaces/IPoolGaugeDeployer.sol'; // offers deploy function for a new pool gauge
+import { IPoolDeployer } from './interfaces/IPoolDeployer.sol'; // offers deploy function for a new pool
 import { ISovereignPool } from '../pools/interfaces/ISovereignPool.sol';
 import { IUniversalPool, PoolState } from '../pools/interfaces/IUniversalPool.sol';
 import { IValantisPool } from '../pools/interfaces/IValantisPool.sol';
@@ -15,6 +15,12 @@ import { SovereignPoolConstructorArgs } from '../pools/structs/SovereignPoolStru
 import { IAuctionController } from '../governance/auctions/interfaces/IAuctionController.sol';
 import { IEmissionsController } from '../governance/emissions/interfaces/IEmissionsController.sol';
 
+
+/**
+ * @notice Central contract for deploying and managing pools and modules in the Valantis ecosystem. 
+ * @dev The ProtocolFactory deploys Sovereign and Universal Pools (via their respective factories) and their associated modules (ALMs, Oracle Modules, Swap Fee Modules)
+        By deploying and maintaining all available modules and pools, the ProtocolFactory allows for a flexible and interoperable Valantis DEX ecosystem.
+ */
 contract ProtocolFactory is IProtocolFactory {
     using EnumerableSet for EnumerableSet.AddressSet;
 
