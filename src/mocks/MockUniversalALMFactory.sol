@@ -2,14 +2,14 @@
 pragma solidity ^0.8.19;
 
 import { IValantisDeployer } from '../protocol-factory/interfaces/IValantisDeployer.sol';
-import { MockSovereignALM } from './MockSovereignALM.sol';
+import { MockUniversalALM } from './MockUniversalALM.sol';
 
-contract MockSovereignALMFactory is IValantisDeployer {
+contract MockUniversalALMFactory is IValantisDeployer {
     /************************************************
      *  CUSTOM ERRORS
      ***********************************************/
 
-    error MockSovereignALMFactory__deploy_invalidDeployer();
+    error MockUniversalALMFactory__deploy_invalidDeployer();
 
     /************************************************
      *  IMMUTABLES
@@ -39,8 +39,8 @@ contract MockSovereignALMFactory is IValantisDeployer {
                 _salt,
                 keccak256(
                     hasConstructorArgs
-                        ? abi.encodePacked(type(MockSovereignALM).creationCode, _constructorArgs)
-                        : type(MockSovereignALM).creationCode
+                        ? abi.encodePacked(type(MockUniversalALM).creationCode, _constructorArgs)
+                        : type(MockUniversalALM).creationCode
                 )
             )
         );
@@ -50,10 +50,10 @@ contract MockSovereignALMFactory is IValantisDeployer {
 
     function deploy(bytes32 _salt, bytes calldata _constructorArgs) external override returns (address deployment) {
         if (msg.sender != protocolFactory) {
-            revert MockSovereignALMFactory__deploy_invalidDeployer();
+            revert MockUniversalALMFactory__deploy_invalidDeployer();
         }
 
-        address pool = abi.decode(_constructorArgs, (address));
-        deployment = address(new MockSovereignALM{ salt: _salt }(pool));
+        (address pool, bool isMetaALM) = abi.decode(_constructorArgs, (address, bool));
+        deployment = address(new MockUniversalALM{ salt: _salt }(pool, isMetaALM));
     }
 }
